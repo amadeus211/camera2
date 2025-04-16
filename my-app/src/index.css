@@ -1,0 +1,121 @@
+.container {
+	max-width: 600px;
+	width: 100%;
+	margin: auto;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
+.form-control {
+	width: 100%;
+	padding: 10px;
+	font-size: 16px;
+	border-radius: 8px;
+	border: 1px solid #ccc;
+}
+
+.form-group {
+	margin-bottom: 15px;
+	text-align: left;
+	width: 100%;
+}
+
+.title {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	width: 100%;
+}
+
+h1 {
+	margin-bottom: 20px;
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.connect-container {
+	margin-bottom: 15px;
+	text-align: left;
+	width: 100%;
+}
+
+.btn {
+	width: 100%;
+	padding: 10px;
+	font-size: 16px;
+	border-radius: 8px;
+	transition: background 0.3s ease-in-out;
+}
+
+.btn-primary {
+	background-color: #007bff;
+	border: none;
+}
+
+.btn-primary:hover {
+	background-color: #0056b3;
+}
+
+.btn-default {
+	background-color: #6c757d;
+	color: white;
+	border: none;
+}
+
+.btn-default:hover {
+	background-color: #5a6268;
+}
+
+.container-cam {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+
+.control {
+	display: flex;
+	gap: 50px;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 20px;
+}
+
+#video-canvas {
+	display: block;
+	max-width: 100%;
+	height: 600px;
+	aspect-ratio: 16 / 9;
+	border: 2px solid #ddd;
+	border-radius: 8px;
+	margin: 20px auto;
+}
+
+.secondary {
+	background-color: red;
+	width: 200px;
+	/* Робить кнопку на всю ширину */
+	height: 100px;
+	/* Встановлює висоту кнопки */
+	color: white;
+	border-radius: 15px;
+	font-size: 25px;
+	border: none;
+	/* Прибирає рамку, якщо хочете */
+	display: block;
+	/* Для того, щоб кнопка займала всю доступну ширину */
+	margin: 10px 0;
+	/* Можна додати відступи для кращого вигляду */
+}
+
+
+
+.container-ptz-video{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	gap: 100px;
+}

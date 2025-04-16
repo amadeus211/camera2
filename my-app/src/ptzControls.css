@@ -1,0 +1,64 @@
+.ptz-ctl-box {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+
+    padding: 1rem;
+    gap: 100px; 
+  }
+  
+  .ptz-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(3, 60px);
+    gap: 10px;
+    background-color: #9c9c9c;
+    border-radius: 20px;
+    padding: 20px;
+  }
+  
+  .ptz-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: black;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+  }
+  
+  .ptz-btn:hover {
+    background-color: #414141;
+  }
+  
+  .ptz-btn:active {
+    background-color: #585858;
+  }
+  
+  .ptz-btn.empty {
+    background: transparent;
+    cursor: default;
+    pointer-events: none;
+  }
+  
+  .ptz-speed-box {
+    text-align: center;
+    font-size: 16px;
+    
+    color: #fff;
+  }
+  
+  .ptz-speed-box input[type="range"] {
+    width: 180px;
+    margin-top: 5px;
+  }
+
+  .ptz-label{
+    color: black;
+  }
+  
