@@ -5,6 +5,7 @@ import PythonStream from "./PythonStream";
 
 
 const VideoStream = ({ rtspUrl, cameraConnected }) => {
+
   useEffect(() => {
     if (cameraConnected && rtspUrl) {
       axios.get(`http://127.0.0.1:3003/stream?rtsp=${encodeURIComponent(rtspUrl)}`);
@@ -17,7 +18,7 @@ const VideoStream = ({ rtspUrl, cameraConnected }) => {
   return (
     <div>
         <canvas id="video-canvas"></canvas>;
-        <PythonStream></PythonStream>
+        <PythonStream rtspUrl={rtspUrl}></PythonStream>
     </div>
   )
   

@@ -6,7 +6,7 @@ const WebSocketManager = ({ setWs, setDevices, setConnected }) => {
     socket.onopen = () => socket.send(JSON.stringify({ method: "startDiscovery" }));
     socket.onmessage = (res) => setDevices(JSON.parse(res.data).result || []);
     setWs(socket);
-    return () => socket.close();
+    // return () => socket.close();
   }, []);
 
   return null;

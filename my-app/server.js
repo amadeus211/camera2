@@ -7,6 +7,8 @@ const path = require("path");
 process.chdir(__dirname);
 
 const app = express();
+app.use(express.json());
+
 const cors = require("cors");
 let pythonProcess = null;
 
@@ -53,6 +55,25 @@ app.get("/stream", (req, res) => {
 
   res.status(200).json({ url: "ws://127.0.0.1:9999" });
 });
+
+app.post("/start-tracking", (req, res) => {
+  const { rtspUrl } = req.body;
+  console.log("Received RTSP URL:", rtspUrl); // Перевірте, чи отримуєте правильний URL
+
+  startPythonTracking(rtspUrl);
+  res.status(200).send("Tracking started");
+});
+
+app.post("/stop-tracking", (req, res) => {
+  if (pythonProcess) {
+    pythonProcess.kill("SIGINT"); 
+    pythonProcess = null;
+    console.log("Трекінг зупинено");
+    res.status(200).send({ message: "Трекінг зупинено" });
+  } else {
+    res.status(400).send({ message: "Трекінг не запущено" });
+  }
+});
 try {
   onvif = require("../../lib/node-onvif.js");
 } catch (e) {
@@ -78,36 +99,44 @@ function httpServerRequest(req, res) {
   if (req.url.startsWith("/stream")) {
     return app(req, res); // Передаємо запит в Express
   }
-  
-  // Додаємо новий маршрут для доступу до відеопотоку з трекінгом
-  if (req.url.startsWith("/tracking_feed")) {
-    res.writeHead(200, {
-      'Content-Type': 'multipart/x-mixed-replace; boundary=frame',
-      'Cache-Control': 'no-cache',
-      'Connection': 'close',
-      'Pragma': 'no-cache'
-    });
-    
-    // Перенаправляємо запит на Python-сервер
-    const http = require('http');
-    const tracking_req = http.request({
-      hostname: '127.0.0.1',
-      port: 3004,
-      path: '/video_feed',
-      method: 'GET'
-    }, (tracking_res) => {
-      tracking_res.pipe(res);
-    });
-    
-    tracking_req.on('error', (e) => {
-      console.error(`Problem with tracking request: ${e.message}`);
-      res.end();
-    });
-    
-    tracking_req.end();
-    return;
+  if (req.url.startsWith("/start-tracking")) {
+    return app(req, res); // Передаємо запит в Express
   }
-  
+  if (req.url.startsWith("/stop-tracking")) {
+    return app(req, res); // Передаємо запит в Express
+  }
+  // // Додаємо новий маршрут для доступу до відеопотоку з трекінгом
+  // if (req.url.startsWith("/tracking_feed")) {
+  //   res.writeHead(200, {
+  //     "Content-Type": "multipart/x-mixed-replace; boundary=frame",
+  //     "Cache-Control": "no-cache",
+  //     Connection: "close",
+  //     Pragma: "no-cache",
+  //   });
+
+  //   // Перенаправляємо запит на Python-сервер
+  //   const http = require("http");
+  //   const tracking_req = http.request(
+  //     {
+  //       hostname: "127.0.0.1",
+  //       port: 3004,
+  //       path: "/video_feed",
+  //       method: "GET",
+  //     },
+  //     (tracking_res) => {
+  //       tracking_res.pipe(res);
+  //     }
+  //   );
+
+  //   tracking_req.on("error", (e) => {
+  //     console.error(`Problem with tracking request: ${e.message}`);
+  //     res.end();
+  //   });
+
+  //   tracking_req.end();
+  //   return;
+  // }
+
   // Оригінальний код для обробки інших запитів
   var path = req.url.replace(/\?.*$/, "");
   if (path.match(/\.{2,}/) || path.match(/[^a-zA-Z\d\_\-\.\/]/)) {
@@ -211,7 +240,7 @@ function startDiscovery(conn) {
 }
 
 function connect(conn, params) {
-  console.log("params:", params, "conn:", conn);
+  // console.log("params:", params, "conn:", conn);
 
   var device = devices[params.address];
   console.log("device:", device);
@@ -241,7 +270,7 @@ function connect(conn, params) {
       console.log("RTSP URL:", rtspUrl);
 
       // Запускаємо Python-скрипт для трекінгу об'єктів
-      startPythonTracking(rtspUrl, params.user, params.pass);
+      // startPythonTracking(rtspUrl, params.user, params.pass);
     }
 
     console.log(JSON.stringify(res));
@@ -251,7 +280,7 @@ function connect(conn, params) {
 }
 
 // Функція для запуску Python-скрипта
-function startPythonTracking(rtspUrl, username, password) {
+function startPythonTracking(rtspUrl) {
   // Зупиняємо попередній процес, якщо він існує
   if (pythonProcess) {
     console.log("Stopping previous Python tracking process");
@@ -260,18 +289,40 @@ function startPythonTracking(rtspUrl, username, password) {
   }
 
   // Формуємо повний RTSP URL з автентифікацією
-  const fullRtspUrl = rtspUrl.replace(
-    "rtsp://",
-    `rtsp://${username}:${password}@`
-  );
 
   // Шлях до Python-скрипту
-  const scriptPath = path.join(__dirname, "..", "tracker", "tracker.py");
+  const scriptPath = path.join(
+    __dirname,
+    "..",
+    "yolo-rtsp-security-cam",
+    "yolo-rtsp-security-cam.py"
+  );
+  console.log("path : " + scriptPath);
+  const pythonScriptDir = path.join(__dirname, "..", "yolo-rtsp-security-cam");
 
-  console.log(`Starting Python tracking for ${fullRtspUrl}`);
+  const yoloClasses = "person,dog,cat"; // Ти можеш змінювати це залежно від потреб
+  const monitorFlag = "--monitor"; // Якщо потрібен моніторинг
+  //python yolo-rtsp-security-cam.py --stream rtsp://admin:Sasha21012004@192.168.0.104:554/stream1 --yolo person,dog,cat --monitor
+
+  console.log(`Starting Python tracking for ${rtspUrl}`);
 
   // Запускаємо Python-процес
-  pythonProcess = spawn("python", [scriptPath, fullRtspUrl]);
+  pythonProcess = spawn(
+    "python",
+    [
+      // Або повний шлях до python.exe, якщо потрібно
+      scriptPath,
+      "--stream",
+      rtspUrl,
+      "--yolo",
+      yoloClasses,
+      monitorFlag,
+    ],
+    {
+      cwd: pythonScriptDir, // Вказуємо робочу директорію для процесу Python
+    }
+  );
+  console.log("python procces started");
 
   // Обробка вихідних даних
   pythonProcess.stdout.on("data", (data) => {
@@ -287,7 +338,6 @@ function startPythonTracking(rtspUrl, username, password) {
     pythonProcess = null;
   });
 
-  // Додаємо обробник для зупинки Python-процесу при завершенні роботи Node.js
   process.on("exit", () => {
     if (pythonProcess) {
       pythonProcess.kill();
